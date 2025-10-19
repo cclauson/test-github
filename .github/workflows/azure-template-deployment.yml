@@ -13,13 +13,16 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
+      - name: Azure Login
       - uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_DEPLOY_CREDS }}
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - name: Deploy Bicep template
+        uses: azure/bicep-deploy@v2
+        with:
+          resourceGroupName: 'MyTestSite'
+          templateFile: '../templates/azure-resources.bicep'
 
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
