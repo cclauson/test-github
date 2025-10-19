@@ -4,14 +4,18 @@ on: workflow_dispatch
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  transpile-bicep:
-    name: "Transpile Bicep"
+  DeployAzureTemplate:
+    name: "Deploy Azure Template"
     runs-on: ubuntu-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
+
+      - uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_DEPLOY_CREDS }}
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
