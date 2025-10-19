@@ -27,4 +27,4 @@ jobs:
           scope: resourceGroup
           subscription-id: bc25c459-f8eb-42a1-9f41-ad3613f1e963
           resource-group-name: MyTestSite
-          template-file: ../templates/azure-resources.bicep
+          template-file: ./templates/azure-resources.bicep
