@@ -19,13 +19,25 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      - name: Compute Azure Credentials
+        id: compute_azure_creds
+        run: |
+          echo "AZURE_DEPLOY_CREDENTIALS<<EOF" >> $GITHUB_ENV
+          echo '{' >> $GITHUB_OUTPUT
+          echo '  "clientId": "${{ secrets.AZURE_DEPLOY_CLIENT_ID }}",' >> $GITHUB_OUTPUT
+          echo '  "clientSecret": "${{ secrets.AZURE_DEPLOY_CLIENT_SECRET }}",' >> $GITHUB_OUTPUT
+          echo '  "subscriptionId": "${{ secrets.AZURE_DEPLOY_SUBSCRIPTION_ID }}",' >> $GITHUB_OUTPUT
+          echo '  "tenantId": "${{ secrets.AZURE_DEPLOY_TENANT_ID }}"' >> $GITHUB_OUTPUT
+          echo '}' >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
       - name: Azure Login
         uses: azure/login@v2
         with:
-          creds: ${{ env.AZURE_DEPLOY_CREDENTIALS }}
+          creds: ${{ steps.compute_azure_creds.outputs.AZURE_DEPLOY_CREDENTIALS }}
 
       - name: Deploy Bicep template
         uses: azure/bicep-deploy@v2
