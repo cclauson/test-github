@@ -1,5 +1,8 @@
 name: Azure Template Deployment
 
+variables:
+  AZURE_DEPLOY_CREDS: ${{ secrets.AZURE_DEPLOY_CREDS }}
+
 on: workflow_dispatch
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -16,7 +19,7 @@ jobs:
       - name: Azure Login
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_DEPLOY_CREDS }}
+          creds: ${{ AZURE_DEPLOY_CREDS }}
 
       - name: Deploy Bicep template
         uses: azure/bicep-deploy@v2
