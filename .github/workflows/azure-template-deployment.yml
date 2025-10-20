@@ -1,14 +1,5 @@
 name: Azure Template Deployment
 
-env:
-  AZURE_DEPLOY_CREDENTIALS: >
-    {
-      "clientId": "${{ secrets.AZURE_DEPLOY_CLIENT_ID }}",
-      "clientSecret": "${{ secrets.AZURE_DEPLOY_CLIENT_SECRET }}",
-      "subscriptionId": ${{ secrets.AZURE_DEPLOY_SUBSCRIPTION_ID }},
-      "tenantId": "${{ secrets.AZURE_DEPLOY_TENANT_ID }}"
-    }
-
 on: workflow_dispatch
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
