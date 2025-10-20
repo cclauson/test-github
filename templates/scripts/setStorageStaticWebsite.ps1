@@ -7,6 +7,7 @@ param (
     [string]$ClientSecret
     [string]$ClientId
     [string]$TenantId
+    [string]$SubscriptionId
 )
 
 Connect-AzAccount -ServicePrincipal -Tenant $TenantId -ApplicationId $ClientId -Credential (ConvertTo-SecureString $ClientSecret -AsPlainText -Force) -ErrorAction Stop
