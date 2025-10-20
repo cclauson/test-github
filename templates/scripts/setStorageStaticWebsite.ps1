@@ -3,10 +3,10 @@ param (
     [string]$ErrorDocument404Path = '404.html',
     [string]$storageAccountName = 'aeu1pectld1sadata1',
     [validateset('Enabled', 'Disabled')]
-    [string]$StaticWebsiteState = 'Enabled'
-    [string]$ClientSecret
-    [string]$ClientId
-    [string]$TenantId
+    [string]$StaticWebsiteState = 'Enabled',
+    [string]$ClientSecret,
+    [string]$ClientId,
+    [string]$TenantId,
     [string]$SubscriptionId
 )
 
