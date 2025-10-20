@@ -4,7 +4,12 @@ param (
     [string]$storageAccountName = 'aeu1pectld1sadata1',
     [validateset('Enabled', 'Disabled')]
     [string]$StaticWebsiteState = 'Enabled'
+    [string]$ClientSecret
+    [string]$ClientId
+    [string]$TenantId
 )
+
+Connect-AzAccount -ServicePrincipal -Tenant $TenantId -ApplicationId $ClientId -Credential (ConvertTo-SecureString $ClientSecret -AsPlainText -Force) -ErrorAction Stop
 
 function Get-StaticWebSiteState
 {
