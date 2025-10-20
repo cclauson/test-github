@@ -41,6 +41,4 @@ jobs:
           resource-group-name: MyTestSite
           template-file: ./templates/azure-resources.bicep
           parameters: |
-            clientId=${{  secrets.AZURE_DEPLOY_CLIENT_ID }}
-            tenantId=${{  secrets.AZURE_DEPLOY_TENANT_ID }}
-            clientSecret=${{ secrets.AZURE_DEPLOY_CLIENT_SECRET}}
+            "clientId=${{  secrets.AZURE_DEPLOY_CLIENT_ID }} tenantId=${{  secrets.AZURE_DEPLOY_TENANT_ID }} clientSecret=${{ secrets.AZURE_DEPLOY_CLIENT_SECRET}}""
