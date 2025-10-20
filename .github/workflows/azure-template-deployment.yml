@@ -22,20 +22,19 @@ jobs:
           echo '}' >> $GITHUB_OUTPUT
           echo 'EOF' >> $GITHUB_OUTPUT
 
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
-
       - name: Azure Login
         uses: azure/login@v2
         with:
           creds: ${{ steps.compute_azure_creds.outputs.AZURE_DEPLOY_CREDENTIALS }}
-
 
   DeployAzureTemplate:
     name: "Deploy Azure Template"
     runs-on: ubuntu-latest
     needs: LoginToAzure
     steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
       - name: Deploy Bicep template
         uses: azure/bicep-deploy@v2
         with:
