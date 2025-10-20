@@ -10,7 +10,7 @@ param (
     [string]$SubscriptionId
 )
 
-Connect-AzAccount -ServicePrincipal -Tenant $TenantId -ApplicationId $ClientId -Credential (New-Object System.Management.Automation.PSCredential($ClientId, $ClientSecret)) -ErrorAction Stop
+Connect-AzAccount -ServicePrincipal -Tenant $TenantId -ApplicationId $ClientId -Credential (New-Object System.Management.Automation.PSCredential($ClientId, (ConvertTo-SecureString $ClientSecret -AsPlainText -Force))) -ErrorAction Stop
 
 function Get-StaticWebSiteState
 {
