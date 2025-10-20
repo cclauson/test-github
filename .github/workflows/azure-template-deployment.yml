@@ -1,7 +1,7 @@
 name: Azure Template Deployment
 
-variables:
-  AZURE_DEPLOY_CREDS: ${{ secrets.AZURE_DEPLOY_CREDS }}
+env:
+  AZURE_DEPLOY_CREDENTIALS: ${{ secrets.AZURE_DEPLOY_CREDS }}
 
 on: workflow_dispatch
 
@@ -19,7 +19,7 @@ jobs:
       - name: Azure Login
         uses: azure/login@v2
         with:
-          creds: ${{ AZURE_DEPLOY_CREDS }}
+          creds: ${{ env.AZURE_DEPLOY_CREDENTIALS }}
 
       - name: Deploy Bicep template
         uses: azure/bicep-deploy@v2
