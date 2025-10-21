@@ -1,5 +1,18 @@
 ﻿name: "Azure Login"
 description: "Login to Azure using service principal credentials"
+inputs:
+  azure-deploy-client-id:
+    description: "Azure Service Principal Client ID"
+    required: true
+  azure-deploy-client-secret:
+    description: "Azure Service Principal Client Secret"
+    required: true
+  azure-deploy-subscription-id:
+    description: "Azure Subscription ID"
+    required: true
+  azure-deploy-tenant-id:
+    description: "Azure Tenant ID"
+    required: true
 outputs:
   AZURE_DEPLOY_CREDENTIALS:
     description: "Azure deployment credentials as JSON string"
@@ -13,10 +26,10 @@ runs:
       run: |
         echo 'AZURE_DEPLOY_CREDENTIALS<<EOF' >> $GITHUB_OUTPUT
         echo '{' >> $GITHUB_OUTPUT
-        echo '  "clientId": "${{ secrets.AZURE_DEPLOY_CLIENT_ID }}",' >> $GITHUB_OUTPUT
-        echo '  "clientSecret": "${{ secrets.AZURE_DEPLOY_CLIENT_SECRET }}",' >> $GITHUB_OUTPUT
-        echo '  "subscriptionId": "${{ secrets.AZURE_DEPLOY_SUBSCRIPTION_ID }}",' >> $GITHUB_OUTPUT
-        echo '  "tenantId": "${{ secrets.AZURE_DEPLOY_TENANT_ID }}"' >> $GITHUB_OUTPUT
+        echo '  "clientId": "${{ inputs.azure-deploy-client-id }}",' >> $GITHUB_OUTPUT
+        echo '  "clientSecret": "${{ inputs.azure-deploy-client-secret }}",' >> $GITHUB_OUTPUT
+        echo '  "subscriptionId": "${{ inputs.azure-deploy-subscription-id }}",' >> $GITHUB_OUTPUT
+        echo '  "tenantId": "${{ inputs.azure-deploy-tenant-id }}"' >> $GITHUB_OUTPUT
         echo '}' >> $GITHUB_OUTPUT
         echo 'EOF' >> $GITHUB_OUTPUT
 
