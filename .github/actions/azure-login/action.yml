@@ -22,6 +22,5 @@ runs:
 
     - name: Azure Login
       uses: azure/login@v2
-      shell: bash
       with:
         creds: ${{ steps.compute_azure_creds.outputs.AZURE_DEPLOY_CREDENTIALS }}
