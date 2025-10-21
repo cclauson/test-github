@@ -9,6 +9,7 @@ runs:
   steps:
     - name: Compute Azure Credentials
       id: compute_azure_creds
+      shell: bash
       run: |
         echo 'AZURE_DEPLOY_CREDENTIALS<<EOF' >> $GITHUB_OUTPUT
         echo '{' >> $GITHUB_OUTPUT
@@ -21,5 +22,6 @@ runs:
 
     - name: Azure Login
       uses: azure/login@v2
+      shell: bash
       with:
         creds: ${{ steps.compute_azure_creds.outputs.AZURE_DEPLOY_CREDENTIALS }}
