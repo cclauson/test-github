@@ -1,0 +1,23 @@
+name: Azure Static Asset Deployment
+
+on: workflow_dispatch
+
+jobs:
+  DeployStaticAssets:
+    name: "Deploy Static Resources"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - id: azure-login
+        name: Azure Login
+        uses: ./.github/actions/azure-login
+        with:
+          azure-deploy-client-id: ${{ secrets.AZURE_DEPLOY_CLIENT_ID }}
+          azure-deploy-client-secret: ${{ secrets.AZURE_DEPLOY_CLIENT_SECRET }}
+          azure-deploy-subscription-id: ${{ secrets.AZURE_DEPLOY_SUBSCRIPTION_ID }}
+          azure-deploy-tenant-id: ${{ secrets.AZURE_DEPLOY_TENANT_ID }}
+
+      - name: Upload files to Azure Blob Storage
+        run: |
+          az storage blob upload-batch --account-name testappstorageacct --destination \$web --source ./static --overwrite
