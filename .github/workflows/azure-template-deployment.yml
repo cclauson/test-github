@@ -31,11 +31,11 @@ jobs:
     name: "Deploy Azure Template"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - id: azure-login
         name: Azure Login
-        uses: ./.github/actions/azure-login
+        uses: ../.github/actions/azure-login
 
       - name: Deploy Bicep template
         uses: azure/bicep-deploy@v2
