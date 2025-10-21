@@ -3,30 +3,6 @@ name: Azure Template Deployment
 on: workflow_dispatch
 
 jobs:
-  LoginToAzure:
-    name: "Login to Azure"
-    runs-on: ubuntu-latest
-    outputs:
-      AZURE_DEPLOY_CREDENTIALS: ${{ steps.compute_azure_creds.outputs.AZURE_DEPLOY_CREDENTIALS }}
-
-    steps:
-      - name: Compute Azure Credentials
-        id: compute_azure_creds
-        run: |
-          echo 'AZURE_DEPLOY_CREDENTIALS<<EOF' >> $GITHUB_OUTPUT
-          echo '{' >> $GITHUB_OUTPUT
-          echo '  "clientId": "${{ secrets.AZURE_DEPLOY_CLIENT_ID }}",' >> $GITHUB_OUTPUT
-          echo '  "clientSecret": "${{ secrets.AZURE_DEPLOY_CLIENT_SECRET }}",' >> $GITHUB_OUTPUT
-          echo '  "subscriptionId": "${{ secrets.AZURE_DEPLOY_SUBSCRIPTION_ID }}",' >> $GITHUB_OUTPUT
-          echo '  "tenantId": "${{ secrets.AZURE_DEPLOY_TENANT_ID }}"' >> $GITHUB_OUTPUT
-          echo '}' >> $GITHUB_OUTPUT
-          echo 'EOF' >> $GITHUB_OUTPUT
-
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          creds: ${{ steps.compute_azure_creds.outputs.AZURE_DEPLOY_CREDENTIALS }}
-
   DeployAzureTemplate:
     name: "Deploy Azure Template"
     runs-on: ubuntu-latest
