@@ -1,7 +1,9 @@
 ﻿name: "Azure Login"
 description: "Login to Azure using service principal credentials"
 outputs:
-  AZURE_DEPLOY_CREDENTIALS: ${{ steps.compute_azure_creds.outputs.AZURE_DEPLOY_CREDENTIALS }}
+  AZURE_DEPLOY_CREDENTIALS:
+    description: "Azure deployment credentials as JSON string"
+    value: ${{ steps.compute_azure_creds.outputs.AZURE_DEPLOY_CREDENTIALS }}
 runs:
   using: "composite"
   steps:
