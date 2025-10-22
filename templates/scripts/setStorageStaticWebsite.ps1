@@ -84,6 +84,9 @@ else
     }
 }
 
+$webEndpoint = (Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $accountName).PrimaryEndpoints.Web
+
 $DeploymentScriptOutputs = @{}
 $DeploymentScriptOutputs['SkipSet'] = $SkipSet
 $DeploymentScriptOutputs['StaticWebsiteState'] = $finalStaticWebsiteState
+$DeploymentScriptOutputs['WebEndpoint'] = $webEndpoint

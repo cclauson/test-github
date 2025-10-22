@@ -54,6 +54,12 @@ resource endpoint 'Microsoft.Cdn/profiles/endpoints@2021-06-01' = {
     ]
     isCompressionEnabled: true
     origins: [
+      {
+        name: 'storageOrigin'
+        properties: {
+          hostName: inlineScriptResource.properties.outputs.WebEndpoint
+        }
+      }
     ]
   }
 }
