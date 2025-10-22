@@ -7,7 +7,8 @@ param (
     [string]$ClientSecret,
     [string]$ClientId,
     [string]$TenantId,
-    [string]$SubscriptionId
+    [string]$SubscriptionId,
+    [string]$ResourceGroupName
 )
 
 Connect-AzAccount -ServicePrincipal -Tenant $TenantId -Credential (New-Object System.Management.Automation.PSCredential($ClientId, (ConvertTo-SecureString $ClientSecret -AsPlainText -Force))) -ErrorAction Stop
@@ -84,7 +85,7 @@ else
     }
 }
 
-$webEndpoint = (Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $accountName).PrimaryEndpoints.Web
+$webEndpoint = (Get-AzStorageAccount -Name $storageAccountName -ResourceGroupName $ResourceGroupName).PrimaryEndpoints.Web
 
 $DeploymentScriptOutputs = @{}
 $DeploymentScriptOutputs['SkipSet'] = $SkipSet

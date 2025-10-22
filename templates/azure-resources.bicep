@@ -24,7 +24,7 @@ resource inlineScriptResource 'Microsoft.Resources/deploymentScripts@2020-10-01'
   properties: {
     azPowerShellVersion: '11.0'
     scriptContent: loadTextContent('scripts/setStorageStaticWebsite.ps1')
-    arguments: '-storageAccountName ${stg.name} -indexDocument index.html -errorDocument 404.html -StaticWebsiteState Enabled -ClientId ${clientId} -ClientSecret ${clientSecret} -TenantId ${tenantId} -SubscriptionId ${subscriptionId}'
+    arguments: '-storageAccountName ${stg.name} -indexDocument index.html -errorDocument 404.html -StaticWebsiteState Enabled -ClientId ${clientId} -ClientSecret ${clientSecret} -TenantId ${tenantId} -SubscriptionId ${subscriptionId} -ResourceGroupName ${resourceGroup().name}'
     retentionInterval: 'P1D'
   }
 }
