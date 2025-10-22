@@ -33,7 +33,7 @@ resource profile 'Microsoft.Cdn/profiles@2021-06-01' = {
   name: 'cdnProfile'
   location: resourceGroup().location
   sku: {
-    name: 'Standard_Akamai'
+    name: 'Standard_Microsoft'
   }
 }
 
