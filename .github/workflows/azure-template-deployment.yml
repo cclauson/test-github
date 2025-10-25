@@ -7,7 +7,7 @@ jobs:
     name: "Deploy Azure Template"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
 
       - id: azure-login
         name: Azure Login
