@@ -28,38 +28,3 @@ resource inlineScriptResource 'Microsoft.Resources/deploymentScripts@2020-10-01'
     retentionInterval: 'P1D'
   }
 }
-
-resource profile 'Microsoft.Cdn/profiles@2021-06-01' = {
-  name: 'cdnProfile'
-  location: resourceGroup().location
-  sku: {
-    name: 'Standard_Microsoft'
-  }
-}
-
-resource endpoint 'Microsoft.Cdn/profiles/endpoints@2021-06-01' = {
-  parent: profile
-  location: resourceGroup().location
-  name: 'cdnEndpoint'
-  properties: {
-    isHttpAllowed: false
-    isHttpsAllowed: true
-    queryStringCachingBehavior: 'IgnoreQueryString'
-    contentTypesToCompress: [
-      'text/plain'
-      'text/html'
-      'text/css'
-      'application/x-javascript'
-      'text/javascript'
-    ]
-    isCompressionEnabled: true
-    origins: [
-      {
-        name: 'storageOrigin'
-        properties: {
-          hostName: inlineScriptResource.properties.outputs.WebEndpoint
-        }
-      }
-    ]
-  }
-}
