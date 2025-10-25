@@ -22,4 +22,9 @@ jobs:
         run: |
           az deployment group create \
             --resource-group MyTestSite \
-            --template-file ./templates/azure-resources.bicep
+            --template-file ./templates/azure-resources.bicep \
+            --parameters \
+              clientId=${{ secrets.AZURE_DEPLOY_CLIENT_ID }} \
+              clientSecret=${{ secrets.AZURE_DEPLOY_CLIENT_SECRET }} \
+              tenantId=${{ secrets.AZURE_DEPLOY_TENANT_ID }} \
+              subscriptionId=${{ secrets.AZURE_DEPLOY_SUBSCRIPTION_ID }}
