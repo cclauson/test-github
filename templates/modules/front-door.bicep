@@ -34,7 +34,6 @@ param privateLinkResourceType string = ''
 @description('If you are using Private Link to connect to the origin, this should specify the location of the Private Link resource. If you are not using Private Link then this should be empty.')
 param privateEndpointLocation string = ''
 
-/*
 @allowed([
   'Detection'
   'Prevention'
@@ -42,6 +41,7 @@ param privateEndpointLocation string = ''
 @description('The mode that the WAF should be deployed using. In \'Prevention\' mode, the WAF will block requests it detects as malicious. In \'Detection\' mode, the WAF will not block requests and will simply log the request.')
 param wafMode string = 'Prevention'
 
+/*
 @description('The list of managed rule sets to configure on the WAF.')
 param wafManagedRuleSets array = [
   {
@@ -173,7 +173,6 @@ resource route 'Microsoft.Cdn/profiles/afdEndpoints/routes@2021-06-01' = {
   }
 }
 
-/*
 resource wafPolicy 'Microsoft.Network/FrontDoorWebApplicationFirewallPolicies@2022-05-01' = {
   name: wafPolicyName
   location: 'global'
@@ -185,12 +184,11 @@ resource wafPolicy 'Microsoft.Network/FrontDoorWebApplicationFirewallPolicies@20
       enabledState: 'Enabled'
       mode: wafMode
     }
-    managedRules: {
-      managedRuleSets: wafManagedRuleSets
-    }
+//     managedRules: {
+//       managedRuleSets: wafManagedRuleSets
+//     }
   }
 }
-*/
 
 resource securityPolicy 'Microsoft.Cdn/profiles/securityPolicies@2021-06-01' = {
   parent: profile
@@ -198,9 +196,9 @@ resource securityPolicy 'Microsoft.Cdn/profiles/securityPolicies@2021-06-01' = {
   properties: {
     parameters: {
       type: 'WebApplicationFirewall'
-//       wafPolicy: {
-//         id: wafPolicy.id
-//       }
+      wafPolicy: {
+        id: wafPolicy.id
+      }
       associations: [
         {
           domains: [
