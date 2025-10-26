@@ -20,7 +20,7 @@ param storageBlobContainerName string = 'mycontainer'
 param frontDoorEndpointName string = 'afd-${uniqueString(resourceGroup().id)}'
 
 // @description('The custom domain name to associate with your Front Door endpoint.')
-param customDomainName string
+// param customDomainName string
 
 var frontDoorSkuName = 'Standard_AzureFrontDoor'
 
