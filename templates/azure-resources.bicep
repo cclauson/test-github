@@ -19,10 +19,10 @@ param storageBlobContainerName string = 'mycontainer'
 @description('The name of the Front Door endpoint to create. This must be globally unique.')
 param frontDoorEndpointName string = 'afd-${uniqueString(resourceGroup().id)}'
 
-@description('The custom domain name to associate with your Front Door endpoint.')
+// @description('The custom domain name to associate with your Front Door endpoint.')
 param customDomainName string
 
-var frontDoorSkuName = 'Premium_AzureFrontDoor' // This sample uses Private Link, which requires the premium SKU of Front Door.
+var frontDoorSkuName = 'Standard_AzureFrontDoor'
 
 module storage 'modules/storage.bicep' = {
   name: 'storage'
@@ -41,15 +41,15 @@ module frontDoor 'modules/front-door.bicep' = {
     endpointName: frontDoorEndpointName
     originHostName: storage.outputs.blobEndpointHostName
     originPath: '/${storageBlobContainerName}'
-    customDomainName: customDomainName
-    privateEndpointResourceId: storage.outputs.storageResourceId
-    privateLinkResourceType: 'blob' // For blobs on Azure Storage, this needs to be 'blob'.
-    privateEndpointLocation: location
+    // customDomainName: customDomainName
+    // privateEndpointResourceId: storage.outputs.storageResourceId
+    // privateLinkResourceType: 'blob' // For blobs on Azure Storage, this needs to be 'blob'.
+    // privateEndpointLocation: location
   }
 }
 
 output frontDoorEndpointHostName string = frontDoor.outputs.frontDoorEndpointHostName
 output blobEndpointHostName string = storage.outputs.blobEndpointHostName
-output customDomainValidationDnsTxtRecordName string = frontDoor.outputs.customDomainValidationDnsTxtRecordName
-output customDomainValidationDnsTxtRecordValue string = frontDoor.outputs.customDomainValidationDnsTxtRecordValue
-output customDomainValidationExpiry string = frontDoor.outputs.customDomainValidationExpiry
+// output customDomainValidationDnsTxtRecordName string = frontDoor.outputs.customDomainValidationDnsTxtRecordName
+// output customDomainValidationDnsTxtRecordValue string = frontDoor.outputs.customDomainValidationDnsTxtRecordValue
+// output customDomainValidationExpiry string = frontDoor.outputs.customDomainValidationExpiry
