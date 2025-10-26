@@ -1,30 +1,55 @@
-param clientId string
-param tenantId string
-@secure()
-param clientSecret string
-param subscriptionId string
+@description('The location into which the Azure Storage resources should be deployed.')
+param location string = resourceGroup().location
 
-resource stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
-  name: 'testappstorageacct'
-  location: resourceGroup().location
-  sku: {
-    name: 'Standard_LRS'
-  }
-  kind: 'StorageV2'
-  properties: {
-    supportsHttpsTrafficOnly: true
-    allowBlobPublicAccess: true
+@description('The name of the Azure Storage account to create. This must be globally unique.')
+param storageAccountName string = 'stor${uniqueString(resourceGroup().id)}'
+
+@description('The name of the SKU to use when creating the Azure Storage account.')
+@allowed([
+  'Standard_LRS'
+  'Standard_GRS'
+  'Standard_ZRS'
+  'Premium_LRS'
+])
+param storageSkuName string = 'Standard_LRS'
+
+@description('The name of the Azure Storage blob container to create.')
+param storageBlobContainerName string = 'mycontainer'
+
+@description('The name of the Front Door endpoint to create. This must be globally unique.')
+param frontDoorEndpointName string = 'afd-${uniqueString(resourceGroup().id)}'
+
+@description('The custom domain name to associate with your Front Door endpoint.')
+param customDomainName string
+
+var frontDoorSkuName = 'Premium_AzureFrontDoor' // This sample uses Private Link, which requires the premium SKU of Front Door.
+
+module storage 'modules/storage.bicep' = {
+  name: 'storage'
+  params: {
+    location: location
+    accountName: storageAccountName
+    skuName: storageSkuName
+    blobContainerName: storageBlobContainerName
   }
 }
 
-resource inlineScriptResource 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: 'setStorageStaticWebsiteScript'
-  location: resourceGroup().location
-  kind: 'AzurePowerShell'
-  properties: {
-    azPowerShellVersion: '11.0'
-    scriptContent: loadTextContent('scripts/setStorageStaticWebsite.ps1')
-    arguments: '-storageAccountName ${stg.name} -indexDocument index.html -errorDocument 404.html -StaticWebsiteState Enabled -ClientId ${clientId} -ClientSecret ${clientSecret} -TenantId ${tenantId} -SubscriptionId ${subscriptionId} -ResourceGroupName ${resourceGroup().name}'
-    retentionInterval: 'P1D'
+module frontDoor 'modules/front-door.bicep' = {
+  name: 'front-door'
+  params: {
+    skuName: frontDoorSkuName
+    endpointName: frontDoorEndpointName
+    originHostName: storage.outputs.blobEndpointHostName
+    originPath: '/${storageBlobContainerName}'
+    customDomainName: customDomainName
+    privateEndpointResourceId: storage.outputs.storageResourceId
+    privateLinkResourceType: 'blob' // For blobs on Azure Storage, this needs to be 'blob'.
+    privateEndpointLocation: location
   }
 }
+
+output frontDoorEndpointHostName string = frontDoor.outputs.frontDoorEndpointHostName
+output blobEndpointHostName string = storage.outputs.blobEndpointHostName
+output customDomainValidationDnsTxtRecordName string = frontDoor.outputs.customDomainValidationDnsTxtRecordName
+output customDomainValidationDnsTxtRecordValue string = frontDoor.outputs.customDomainValidationDnsTxtRecordValue
+output customDomainValidationExpiry string = frontDoor.outputs.customDomainValidationExpiry
