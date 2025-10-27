@@ -20,4 +20,4 @@ jobs:
 
       - name: Upload files to Azure Blob Storage
         run: |
-          az storage blob upload-batch --account-name storage --destination mycontainer --source ./static --overwrite
+          az storage blob upload-batch --account-name storvunipungqq7ds --destination mycontainer --source ./static --overwrite
