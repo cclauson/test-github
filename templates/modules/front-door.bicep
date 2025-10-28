@@ -183,6 +183,7 @@ resource profiles_MyFrontDoor_name_AFDRules 'Microsoft.Cdn/profiles/rulesets@202
   name: 'AFDRules'
 }
 
+/*
 resource profiles_MyFrontDoor_name_AFDRules_DefaultToIndex 'Microsoft.Cdn/profiles/rulesets/rules@2025-04-15' = {
   parent: profiles_MyFrontDoor_name_AFDRules
   name: 'DefaultToIndex'
@@ -215,7 +216,7 @@ resource profiles_MyFrontDoor_name_AFDRules_DefaultToIndex 'Microsoft.Cdn/profil
     ]
     matchProcessingBehavior: 'Continue'
   }
-}
+}*/
 
 resource wafPolicy 'Microsoft.Network/FrontDoorWebApplicationFirewallPolicies@2022-05-01' = {
   name: wafPolicyName
