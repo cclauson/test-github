@@ -47,4 +47,5 @@ resource blobContainer 'Microsoft.Storage/storageAccounts/blobServices/container
 }
 
 output blobEndpointHostName string = replace(replace(storageAccount.properties.primaryEndpoints.blob, 'https://', ''), '/', '')
+output webEndpointHostName string = replace(replace(storageAccount.properties.primaryEndpoints.web, 'https://', ''), '/', '')
 output storageResourceId string = storageAccount.id
