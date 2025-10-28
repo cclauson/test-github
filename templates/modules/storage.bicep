@@ -24,7 +24,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' = {
     name: skuName
   }
   properties: {
-    publicNetworkAccess: 'Disabled'
+    publicNetworkAccess: 'Enabled'
     allowBlobPublicAccess: true
     minimumTlsVersion: 'TLS1_2'
     supportsHttpsTrafficOnly: true
