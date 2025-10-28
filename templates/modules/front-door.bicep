@@ -173,6 +173,45 @@ resource route 'Microsoft.Cdn/profiles/afdEndpoints/routes@2021-06-01' = {
   }
 }
 
+resource profiles_MyFrontDoor_name_AFDRules 'Microsoft.Cdn/profiles/rulesets@2025-04-15' = {
+  parent: profile
+  name: 'AFDRules'
+}
+
+resource profiles_MyFrontDoor_name_AFDRules_DefaultToIndex 'Microsoft.Cdn/profiles/rulesets/rules@2025-04-15' = {
+  parent: profiles_MyFrontDoor_name_AFDRules
+  name: 'DefaultToIndex'
+  properties: {
+    order: 100
+    conditions: [
+      {
+        name: 'UrlPath'
+        parameters: {
+          typeName: 'DeliveryRuleUrlPathMatchConditionParameters'
+          operator: 'Equal'
+          negateCondition: false
+          matchValues: [
+            '/'
+          ]
+          transforms: []
+        }
+      }
+    ]
+    actions: [
+      {
+        name: 'UrlRewrite'
+        parameters: {
+          typeName: 'DeliveryRuleUrlRewriteActionParameters'
+          sourcePattern: '/'
+          destination: '/index.html'
+          preserveUnmatchedPath: false
+        }
+      }
+    ]
+    matchProcessingBehavior: 'Continue'
+  }
+}
+
 resource wafPolicy 'Microsoft.Network/FrontDoorWebApplicationFirewallPolicies@2022-05-01' = {
   name: wafPolicyName
   location: 'global'
