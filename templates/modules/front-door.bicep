@@ -153,6 +153,11 @@ resource route 'Microsoft.Cdn/profiles/afdEndpoints/routes@2021-06-01' = {
       }
     ]
     */
+    ruleSets: [
+      {
+        id: profiles_MyFrontDoor_name_AFDRules.id
+      }
+    ]
     originGroup: {
       id: originGroup.id
     }
