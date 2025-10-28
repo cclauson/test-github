@@ -29,7 +29,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' = {
     minimumTlsVersion: 'TLS1_2'
     supportsHttpsTrafficOnly: true
     networkAcls: {
-      defaultAction: 'Deny'
+      defaultAction: 'Allow'
     }
   }
 
