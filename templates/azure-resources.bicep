@@ -16,14 +16,6 @@ param storageSkuName string = 'Standard_LRS'
 // @description('The name of the Azure Storage blob container to create.')
 param storageBlobContainerName string = 'mycontainer'
 
-@description('The name of the Front Door endpoint to create. This must be globally unique.')
-param frontDoorEndpointName string // = 'afd-${uniqueString(resourceGroup().id)}'
-
-// @description('The custom domain name to associate with your Front Door endpoint.')
-// param customDomainName string
-
-var frontDoorSkuName = 'Standard_AzureFrontDoor'
-
 module storage 'modules/storage.bicep' = {
   name: 'storage'
   params: {
@@ -33,6 +25,15 @@ module storage 'modules/storage.bicep' = {
     blobContainerName: storageBlobContainerName
   }
 }
+
+/*
+@description('The name of the Front Door endpoint to create. This must be globally unique.')
+param frontDoorEndpointName string // = 'afd-${uniqueString(resourceGroup().id)}'
+
+// @description('The custom domain name to associate with your Front Door endpoint.')
+// param customDomainName string
+
+var frontDoorSkuName = 'Standard_AzureFrontDoor'
 
 module frontDoor 'modules/front-door.bicep' = {
   name: 'front-door'
@@ -54,3 +55,4 @@ output webEndpointHostName string = storage.outputs.webEndpointHostName
 // output customDomainValidationDnsTxtRecordName string = frontDoor.outputs.customDomainValidationDnsTxtRecordName
 // output customDomainValidationDnsTxtRecordValue string = frontDoor.outputs.customDomainValidationDnsTxtRecordValue
 // output customDomainValidationExpiry string = frontDoor.outputs.customDomainValidationExpiry
+*/
