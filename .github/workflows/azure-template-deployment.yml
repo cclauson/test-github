@@ -8,7 +8,7 @@ env:
 jobs:
   DeployAzureTemplate:
     name: "Deploy Azure Template"
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
