@@ -1,9 +1,4 @@
-param(
-    [Parameter(
-        Mandatory=$true,
-        ValueFromPipeline=$true)]
-    [string]$InputStringValue
-)
+param([string]$InputStringValue)
 
 #region Functions
 function GenerateUniqueString {
