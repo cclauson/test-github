@@ -40,6 +40,7 @@ jobs:
                           frontDoorEndpointName=${{ env.AZURE_FRONT_DOOR_ENDPOINT_NAME }}
 
       - name: Configure Static Website Hosting
+        shell: pwsh
         run: |
           ./tools/EnableStaticWebHosting.ps1 \
             --IndexDocument index.html \
