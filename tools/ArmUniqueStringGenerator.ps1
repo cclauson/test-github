@@ -1,5 +1,5 @@
 param(
-    [string]$InputStringValue,
+    [string]$InputStringValue
 )
 
 #region Functions

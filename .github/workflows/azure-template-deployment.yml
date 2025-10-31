@@ -24,12 +24,12 @@ jobs:
       - name: Create Globally Unique Names For Resource Group
         id: create-globally-unique-string-for-resource-group
         run: |
-          UNIQUE_STRING=$(./tools/ArmUniqueStringGenerator.ps1 -InputStringValue ${{ env.AZURE_RESOURCE_GROUP }})
-          echo "UNIQUE_STRING=$UNIQUE_STRING" >> $GITHUB_ENV
-          STORAGE_ACCOUNT_NAME="stor${UNIQUE_STRING}"
-          echo "STORAGE_ACCOUNT_NAME=$STORAGE_ACCOUNT_NAME" >> $GITHUB_ENV
-          AZURE_FRONT_DOOR_ENDPOINT_NAME="adf-${UNIQUE_STRING}"
-          echo "AZURE_FRONT_DOOR_ENDPOINT_NAME=$AZURE_FRONT_DOOR_ENDPOINT_NAME" >> $GITHUB_ENV
+          $uniqueString=$(./tools/ArmUniqueStringGenerator.ps1 -InputStringValue ${{ env.AZURE_RESOURCE_GROUP }})
+          echo "UNIQUE_STRING=$uniqueString" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          $storageAccountName="stor${uniqueString}"
+          echo "STORAGE_ACCOUNT_NAME=$storageAccountName" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          $azureFrontDoorEndpointName="adf-${uniqueString}"
+          echo "AZURE_FRONT_DOOR_ENDPOINT_NAME=$azureFrontDoorEndpointName" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Deploy Bicep template
         run: |
