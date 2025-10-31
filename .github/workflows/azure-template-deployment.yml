@@ -32,6 +32,7 @@ jobs:
           echo "AZURE_FRONT_DOOR_ENDPOINT_NAME=$azureFrontDoorEndpointName" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Deploy Bicep template
+        shell: bash
         run: |
           az deployment group create \
             --resource-group MyTestSite \
