@@ -43,4 +43,10 @@ jobs:
       - name: Configure Static Website Hosting
         shell: pwsh
         run: |
-          ./tools/EnableStaticWebHosting.ps1 -IndexDocument index.html -ErrorDocument404Path 404.html -storageAccountName ${{ env.STORAGE_ACCOUNT_NAME }} -TenantId '${{ secrets.AZURE_DEPLOY_TENANT_ID }}' -ClientId '${{ secrets.AZURE_DEPLOY_CLIENT_ID }}' -ClientSecret '${{ secrets.AZURE_DEPLOY_CLIENT_SECRET }}'
+          ./tools/EnableStaticWebHosting.ps1 `
+            -IndexDocument index.html `
+            -ErrorDocument404Path 404.html `
+            -storageAccountName ${{ env.STORAGE_ACCOUNT_NAME }} ` 
+            -TenantId '${{ secrets.AZURE_DEPLOY_TENANT_ID }}' `
+            -ClientId '${{ secrets.AZURE_DEPLOY_CLIENT_ID }}' `
+            -ClientSecret '${{ secrets.AZURE_DEPLOY_CLIENT_SECRET }}'
