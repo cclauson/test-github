@@ -1,4 +1,6 @@
-param([string]$InputStringValue)
+param(
+    [string]$InputStringValue,
+)
 
 #region Functions
 function GenerateUniqueString {
