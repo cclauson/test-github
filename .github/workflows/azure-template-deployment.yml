@@ -43,7 +43,7 @@ jobs:
       - name: Configure Static Website Hosting
         shell: pwsh
         run: |
-          ./tools/EnableStaticWebHosting.ps1 \
-            --IndexDocument index.html \
-            --ErrorDocument404Path 404.html \
+          ./tools/EnableStaticWebHosting.ps1 `
+            --IndexDocument index.html `
+            --ErrorDocument404Path 404.html `
             --storageAccountName=${{ env.STORAGE_ACCOUNT_NAME }}
