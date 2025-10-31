@@ -2,7 +2,7 @@
 param location string = resourceGroup().location
 
 @description('The name of the Azure Storage account to create. This must be globally unique.')
-param storageAccountName string = 'stor${uniqueString(resourceGroup().id)}'
+param storageAccountName string // = 'stor${uniqueString(resourceGroup().id)}'
 
 @description('The name of the SKU to use when creating the Azure Storage account.')
 @allowed([
@@ -13,11 +13,11 @@ param storageAccountName string = 'stor${uniqueString(resourceGroup().id)}'
 ])
 param storageSkuName string = 'Standard_LRS'
 
-@description('The name of the Azure Storage blob container to create.')
+// @description('The name of the Azure Storage blob container to create.')
 param storageBlobContainerName string = 'mycontainer'
 
 @description('The name of the Front Door endpoint to create. This must be globally unique.')
-param frontDoorEndpointName string = 'afd-${uniqueString(resourceGroup().id)}'
+param frontDoorEndpointName string // = 'afd-${uniqueString(resourceGroup().id)}'
 
 // @description('The custom domain name to associate with your Front Door endpoint.')
 // param customDomainName string

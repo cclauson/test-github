@@ -2,6 +2,9 @@ name: Azure Template Deployment
 
 on: workflow_dispatch
 
+env:
+  AZURE_RESOURCE_GROUP: MyTestSite
+
 jobs:
   DeployAzureTemplate:
     name: "Deploy Azure Template"
@@ -18,7 +21,25 @@ jobs:
           azure-deploy-subscription-id: ${{ secrets.AZURE_DEPLOY_SUBSCRIPTION_ID }}
           azure-deploy-tenant-id: ${{ secrets.AZURE_DEPLOY_TENANT_ID }}
 
+      - name: Create Globally Unique Names For Resource Group
+        id: create-globally-unique-string-for-resource-group
+        run: |
+          UNIQUE_STRING=$(./tools/ArmUniqueStringGenerator.ps1 -InputStringValue ${{ env.AZURE_RESOURCE_GROUP }})
+          echo "UNIQUE_STRING=$UNIQUE_STRING" >> $GITHUB_ENV
+          STORAGE_ACCOUNT_NAME="stor${UNIQUE_STRING}"
+          echo "STORAGE_ACCOUNT_NAME=$STORAGE_ACCOUNT_NAME" >> $GITHUB_ENV
+          AZURE_FRONT_DOOR_ENDPOINT_NAME="adf-${UNIQUE_STRING}"
+          echo "AZURE_FRONT_DOOR_ENDPOINT_NAME=$AZURE_FRONT_DOOR_ENDPOINT_NAME" >> $GITHUB_ENV
+
       - name: Deploy Bicep template
+        run: |
+          az deployment group create \
+            --resource-group MyTestSite \
+            --template-file ./templates/azure-resources.bicep \
+            --parameters storageAccountName=${{ env.STORAGE_ACCOUNT_NAME }} \
+                          frontDoorEndpointName=${{ env.AZURE_FRONT_DOOR_ENDPOINT_NAME }}
+
+      - name: Configure Static Website Hosting
         run: |
           az deployment group create \
             --resource-group MyTestSite \
