@@ -1,7 +1,7 @@
 param (
     [string]$IndexDocument,
     [string]$ErrorDocument404Path,
-    [string]$storageAccountName,
+    [string]$storageAccountName
 )
 
 $ctx = New-AzStorageContext -StorageAccountName $storageAccountName -ErrorAction Stop
