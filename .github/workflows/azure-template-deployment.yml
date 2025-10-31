@@ -41,6 +41,7 @@ jobs:
 
       - name: Configure Static Website Hosting
         run: |
-          az deployment group create \
-            --resource-group MyTestSite \
-            --template-file ./templates/azure-resources.bicep
+          ./tools/EnableStaticWebHosting.ps1 \
+            --IndexDocument index.html \
+            --ErrorDocument404Path 404.html \
+            --storageAccountName=${{ env.STORAGE_ACCOUNT_NAME }}
