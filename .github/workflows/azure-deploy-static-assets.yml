@@ -26,4 +26,4 @@ jobs:
 
       - name: Upload files to Azure Blob Storage
         run: |
-          az storage blob upload-batch --account-name ${{ steps.create-globally-unique-string-for-resource-group.outputs.storageAccountName }} --destination \$web --source ./static --overwrite
+          az storage blob upload-batch --account-name ${{ steps.create-globally-unique-string-for-resource-group.outputs.storageAccountName }} --destination '$web' --source ./static --overwrite
