@@ -1,0 +1,29 @@
+﻿name: "Create Globally Unique Names For Resource Group"
+description: "Create unique names for Azure resources"
+inputs:
+  resourceGroupName:
+    description: "The name of the resource group"
+    required: true
+outputs:
+  uniqueString:
+    description: "The unique string generated from the resource group ID"
+    value: ${{ steps.create_unique_names.outputs.UNIQUE_STRING }}
+  storageAccountName:
+    description: "The name of the storage account"
+    value: ${{ steps.create_unique_names.outputs.STORAGE_ACCOUNT_NAME }}
+  frontDoorEndpointName:
+    description: "The name of the Front Door endpoint"
+    value: ${{ steps.create_unique_names.outputs.AZURE_FRONT_DOOR_ENDPOINT_NAME }}
+runs:
+  using: "composite"
+  steps:
+    - name: Create Globally Unique Names For Resource Group
+      id: create_unique_names
+      run: |
+        $resourceGroupId = (Get-AzResourceGroup -Name ${{ inputs.resourceGroupName }}).ResourceId
+        $uniqueString=$(./tools/ArmUniqueStringGenerator.ps1 -InputStringValue $resourceGroupId)
+        echo "UNIQUE_STRING=$uniqueString" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+        $storageAccountName="stor${uniqueString}"
+        echo "STORAGE_ACCOUNT_NAME=$storageAccountName" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+        $azureFrontDoorEndpointName="adf-${uniqueString}"
+        echo "AZURE_FRONT_DOOR_ENDPOINT_NAME=$azureFrontDoorEndpointName" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append

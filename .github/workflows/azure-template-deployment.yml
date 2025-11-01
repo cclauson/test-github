@@ -33,16 +33,11 @@ jobs:
             --template-file ./templates/resourceGroup.bicep \
             --parameters resourceGroupName=${{ vars.AZURE_RESOURCE_GROUP }} resourceGroupLocation=centralus
 
-      - name: Create Globally Unique Names For Resource Group
-        id: create-globally-unique-string-for-resource-group
-        run: |
-          $resourceGroupId = (Get-AzResourceGroup -Name ${{ vars.AZURE_RESOURCE_GROUP }}).ResourceId
-          $uniqueString=$(./tools/ArmUniqueStringGenerator.ps1 -InputStringValue $resourceGroupId)
-          echo "UNIQUE_STRING=$uniqueString" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          $storageAccountName="stor${uniqueString}"
-          echo "STORAGE_ACCOUNT_NAME=$storageAccountName" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          $azureFrontDoorEndpointName="adf-${uniqueString}"
-          echo "AZURE_FRONT_DOOR_ENDPOINT_NAME=$azureFrontDoorEndpointName" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - id: create-globally-unique-string-for-resource-group
+        name: Create Globally Unique Names For Resource Group
+        uses: ./.github/actions/create-unique-names
+        with:
+          resourceGroupName: ${{ vars.AZURE_RESOURCE_GROUP }}
 
       - name: Deploy Bicep template
         shell: bash
@@ -50,10 +45,10 @@ jobs:
           az deployment group create \
             --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \
             --template-file ./templates/azure-resources.bicep \
-            --parameters storageAccountName=${{ env.STORAGE_ACCOUNT_NAME }} \
-                          frontDoorEndpointName=${{ env.AZURE_FRONT_DOOR_ENDPOINT_NAME }}
+            --parameters storageAccountName=${{ steps.create-globally-unique-string-for-resource-group.outputs.storageAccountName }} \
+                          frontDoorEndpointName=${{ steps.create-globally-unique-string-for-resource-group.outputs.frontDoorEndpointName }}
 
       - name: Configure Static Website Hosting
         shell: pwsh
         run: |
-          ./tools/EnableStaticWebHosting.ps1 -IndexDocument index.html -ErrorDocument404Path 404.html -storageAccountName ${{ env.STORAGE_ACCOUNT_NAME }}
+          ./tools/EnableStaticWebHosting.ps1 -IndexDocument index.html -ErrorDocument404Path 404.html -storageAccountName ${{ steps.create-globally-unique-string-for-resource-group.outputs.storageAccountName }}
