@@ -2,7 +2,7 @@
 param location string = resourceGroup().location
 
 @description('The name of the Azure Storage account to create. This must be globally unique.')
-param storageAccountName string
+param storageAccountName string // = 'stor${uniqueString(resourceGroup().id)}'
 
 @description('The name of the SKU to use when creating the Azure Storage account.')
 @allowed([
