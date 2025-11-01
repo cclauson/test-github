@@ -24,7 +24,8 @@ jobs:
       - name: Create Globally Unique Names For Resource Group
         id: create-globally-unique-string-for-resource-group
         run: |
-          $uniqueString=$(./tools/ArmUniqueStringGenerator.ps1 -InputStringValue ${{ env.AZURE_RESOURCE_GROUP }})
+          $resourceGroupId = (Get-AzResourceGroup -Name ${{ env.AZURE_RESOURCE_GROUP }}).ResourceId
+          $uniqueString=$(./tools/ArmUniqueStringGenerator.ps1 -InputStringValue $resourceGroupId)
           echo "UNIQUE_STRING=$uniqueString" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           $storageAccountName="stor${uniqueString}"
           echo "STORAGE_ACCOUNT_NAME=$storageAccountName" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
