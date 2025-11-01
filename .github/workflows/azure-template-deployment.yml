@@ -25,9 +25,13 @@ jobs:
           Select-AzSubscription -SubscriptionId '${{ secrets.AZURE_DEPLOY_SUBSCRIPTION_ID }}' -ErrorAction Stop
 
       - name: Create Resource Group
-        shell: pwsh
+        shell: bash
         run: |
-          New-AzResourceGroup -Name ${{ vars.AZURE_RESOURCE_GROUP }} -Location 'East US' -ErrorAction Stop
+          az deployment sub create \
+            --name subscriptionDeployment \
+            --location centralus \
+            --template-file ./templates/resourceGroup.bicep \
+            --parameters resourceGroupName=${{ vars.AZURE_RESOURCE_GROUP }} resourceGroupLocation=centralus
 
       - name: Create Globally Unique Names For Resource Group
         id: create-globally-unique-string-for-resource-group
