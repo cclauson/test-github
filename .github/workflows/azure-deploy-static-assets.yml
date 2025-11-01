@@ -18,6 +18,12 @@ jobs:
           azure-deploy-subscription-id: ${{ secrets.AZURE_DEPLOY_SUBSCRIPTION_ID }}
           azure-deploy-tenant-id: ${{ secrets.AZURE_DEPLOY_TENANT_ID }}
 
+      - name: Create Globally Unique Names For Resource Group
+        id: create-globally-unique-string-for-resource-group  
+        uses: ./.github/actions/create-unique-names
+        with:
+          resourceGroupName: ${{ vars.AZURE_RESOURCE_GROUP }}
+
       - name: Upload files to Azure Blob Storage
         run: |
-          az storage blob upload-batch --account-name storvunipungqq7ds --destination \$web --source ./static --overwrite
+          az storage blob upload-batch --account-name ${{ steps.create-globally-unique-string-for-resource-group.outputs.storageAccountName }} --destination \$web --source ./static --overwrite
