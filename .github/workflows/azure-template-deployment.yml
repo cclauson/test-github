@@ -21,7 +21,7 @@ jobs:
       - name: Create Resource Group
         shell: pwsh
         run: |
-          New-AzResourceGroup -Name ${{ vars.AZURE_RESOURCE_GROUP }} -Location 'East US' -ErrorAction Stop
+          New-AzResourceGroup -Name 'MyTestSite2' -Location 'East US' -ErrorAction Stop
 
       - name: Create Globally Unique Names For Resource Group
         id: create-globally-unique-string-for-resource-group
