@@ -13,9 +13,6 @@ param storageAccountName string // = 'stor${uniqueString(resourceGroup().id)}'
 ])
 param storageSkuName string = 'Standard_LRS'
 
-// @description('The name of the Azure Storage blob container to create.')
-param storageBlobContainerName string = 'mycontainer'
-
 @description('The name of the Front Door endpoint to create. This must be globally unique.')
 param frontDoorEndpointName string // = 'afd-${uniqueString(resourceGroup().id)}'
 
@@ -30,7 +27,6 @@ module storage 'modules/storage.bicep' = {
     location: location
     accountName: storageAccountName
     skuName: storageSkuName
-    blobContainerName: storageBlobContainerName
   }
 }
 
