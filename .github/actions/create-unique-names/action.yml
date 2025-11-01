@@ -19,6 +19,7 @@ runs:
   steps:
     - name: Create Globally Unique Names For Resource Group
       id: create_unique_names
+      shell: pwsh
       run: |
         $resourceGroupId = (Get-AzResourceGroup -Name ${{ inputs.resourceGroupName }}).ResourceId
         $uniqueString=$(./tools/ArmUniqueStringGenerator.ps1 -InputStringValue $resourceGroupId)
