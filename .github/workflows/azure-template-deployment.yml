@@ -18,6 +18,12 @@ jobs:
           azure-deploy-subscription-id: ${{ secrets.AZURE_DEPLOY_SUBSCRIPTION_ID }}
           azure-deploy-tenant-id: ${{ secrets.AZURE_DEPLOY_TENANT_ID }}
 
+      - name: Connect Az Account
+        shell: pwsh
+        run: |
+          Connect-AzAccount -ServicePrincipal -Tenant '${{ secrets.AZURE_DEPLOY_TENANT_ID }}' -Credential (New-Object System.Management.Automation.PSCredential('${{ secrets.AZURE_DEPLOY_CLIENT_ID }}', (ConvertTo-SecureString '${{ secrets.AZURE_DEPLOY_CLIENT_SECRET }}' -AsPlainText -Force))) -ErrorAction Stop
+          Select-AzSubscription -SubscriptionId '${{ secrets.AZURE_DEPLOY_SUBSCRIPTION_ID }}' -ErrorAction Stop
+
       - name: Create Resource Group
         shell: pwsh
         run: |
