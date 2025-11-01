@@ -2,9 +2,6 @@ name: Azure Template Deployment
 
 on: workflow_dispatch
 
-env:
-  AZURE_RESOURCE_GROUP: MyTestSite
-
 jobs:
   DeployAzureTemplate:
     name: "Deploy Azure Template"
@@ -27,10 +24,15 @@ jobs:
           Connect-AzAccount -ServicePrincipal -Tenant '${{ secrets.AZURE_DEPLOY_TENANT_ID }}' -Credential (New-Object System.Management.Automation.PSCredential('${{ secrets.AZURE_DEPLOY_CLIENT_ID }}', (ConvertTo-SecureString '${{ secrets.AZURE_DEPLOY_CLIENT_SECRET }}' -AsPlainText -Force))) -ErrorAction Stop
           Select-AzSubscription -SubscriptionId '${{ secrets.AZURE_DEPLOY_SUBSCRIPTION_ID }}' -ErrorAction Stop
 
+      - name: Create Resource Group
+        shell: pwsh
+        run: |
+          New-AzResourceGroup -Name ${{ vars.AZURE_RESOURCE_GROUP }} -Location 'East US' -ErrorAction Stop
+
       - name: Create Globally Unique Names For Resource Group
         id: create-globally-unique-string-for-resource-group
         run: |
-          $resourceGroupId = (Get-AzResourceGroup -Name ${{ env.AZURE_RESOURCE_GROUP }}).ResourceId
+          $resourceGroupId = (Get-AzResourceGroup -Name ${{ vars.AZURE_RESOURCE_GROUP }}).ResourceId
           $uniqueString=$(./tools/ArmUniqueStringGenerator.ps1 -InputStringValue $resourceGroupId)
           echo "UNIQUE_STRING=$uniqueString" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           $storageAccountName="stor${uniqueString}"
@@ -42,7 +44,7 @@ jobs:
         shell: bash
         run: |
           az deployment group create \
-            --resource-group MyTestSite \
+            --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \
             --template-file ./templates/azure-resources.bicep \
             --parameters storageAccountName=${{ env.STORAGE_ACCOUNT_NAME }} \
                           frontDoorEndpointName=${{ env.AZURE_FRONT_DOOR_ENDPOINT_NAME }}
