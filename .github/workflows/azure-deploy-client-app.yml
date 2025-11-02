@@ -1,10 +1,10 @@
-name: Azure Static Asset Deployment
+name: Azure Client App Deployment
 
 on: workflow_dispatch
 
 jobs:
-  DeployStaticAssets:
-    name: "Deploy Static Resources"
+  DeployClientApp:
+    name: "Deploy Client App"
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,6 +24,12 @@ jobs:
         with:
           resourceGroupName: ${{ vars.AZURE_RESOURCE_GROUP }}
 
+      - name: Build Client Application
+        run: |
+          cd client
+          npm install
+          npm run build
+
       - name: Upload files to Azure Blob Storage
         run: |
-          az storage blob upload-batch --account-name ${{ steps.create-globally-unique-string-for-resource-group.outputs.storageAccountName }} --destination '$web' --source ./static --overwrite
+          az storage blob upload-batch --account-name ${{ steps.create-globally-unique-string-for-resource-group.outputs.storageAccountName }} --destination '$web' --source ./client/build --overwrite
