@@ -30,6 +30,11 @@ module storage 'modules/storage.bicep' = {
   }
 }
 
+module dataPipeline 'modules/data-pipeline.bicep' = {
+  name: 'data-pipeline'
+  params: {}
+}
+
 /*
 module frontDoor 'modules/front-door.bicep' = {
   name: 'front-door'
