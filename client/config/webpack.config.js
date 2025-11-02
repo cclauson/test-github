@@ -186,6 +186,8 @@ module.exports = function (webpackEnv) {
     return loaders;
   };
 
+  const injectedConfig = JSON.parse(fs.readFileSync(path.resolve('injected_client_config.json'), 'utf-8'));
+
   return {
     target: ['browserslist'],
     // Webpack noise constrained to errors and warnings
@@ -589,6 +591,9 @@ module.exports = function (webpackEnv) {
             : undefined
         )
       ),
+      new webpack.DefinePlugin({
+        'APP_INSIGHTS_CONNECTION_STRING': JSON.stringify(injectedConfig.appInsightsConnectionString),
+      }),
       // Inlines the webpack runtime script. This script is too small to warrant
       // a network request.
       // https://github.com/facebook/create-react-app/issues/5358

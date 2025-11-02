@@ -24,6 +24,11 @@ jobs:
         with:
           resourceGroupName: ${{ vars.AZURE_RESOURCE_GROUP }}
 
+      - name: Initialize Client Application Config From Azure
+        shell: pwsh
+        run: |
+          pwsh ./client/init.ps1 -ResourceGroup ${{ vars.AZURE_RESOURCE_GROUP }}
+
       - name: Build Client Application
         run: |
           cd client
