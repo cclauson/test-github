@@ -50,7 +50,7 @@ module frontDoor 'modules/front-door.bicep' = {
 }
 
 output frontDoorEndpointHostName string = frontDoor.outputs.frontDoorEndpointHostName
-output blobEndpointHostName string = storage.outputs.blobEndpointHostName
+// output blobEndpointHostName string = storage.outputs.blobEndpointHostName
 output webEndpointHostName string = storage.outputs.webEndpointHostName
 // output customDomainValidationDnsTxtRecordName string = frontDoor.outputs.customDomainValidationDnsTxtRecordName
 // output customDomainValidationDnsTxtRecordValue string = frontDoor.outputs.customDomainValidationDnsTxtRecordValue
