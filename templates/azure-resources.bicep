@@ -35,7 +35,6 @@ module dataPipeline 'modules/data-pipeline.bicep' = {
   params: {}
 }
 
-/*
 module frontDoor 'modules/front-door.bicep' = {
   name: 'front-door'
   params: {
@@ -56,4 +55,3 @@ output webEndpointHostName string = storage.outputs.webEndpointHostName
 // output customDomainValidationDnsTxtRecordName string = frontDoor.outputs.customDomainValidationDnsTxtRecordName
 // output customDomainValidationDnsTxtRecordValue string = frontDoor.outputs.customDomainValidationDnsTxtRecordValue
 // output customDomainValidationExpiry string = frontDoor.outputs.customDomainValidationExpiry
-*/
