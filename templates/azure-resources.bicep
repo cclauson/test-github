@@ -27,7 +27,6 @@ module storage 'modules/storage.bicep' = {
     location: location
     accountName: storageAccountName
     skuName: storageSkuName
-    customDomainName: customDomainName
   }
 }
 
