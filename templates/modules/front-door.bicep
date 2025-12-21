@@ -14,8 +14,8 @@ param endpointName string
 ])
 param skuName string
 
-// @description('The custom domain name to associate with your Front Door endpoint.')
-// param customDomainName string
+@description('The custom domain name to associate with your Front Door endpoint.')
+param customDomainName string
 
 @description('The protocol that should be used when connecting from Front Door to the origin.')
 @allowed([
@@ -75,7 +75,7 @@ var wafPolicyName = 'WafPolicy'
 var securityPolicyName = 'SecurityPolicy'
 
 // Create a valid resource name for the custom domain. Resource names don't include periods.
-// var customDomainResourceName = replace(customDomainName, '.', '-')
+var customDomainResourceName = replace(customDomainName, '.', '-')
 
 resource profile 'Microsoft.Cdn/profiles@2021-06-01' = {
   name: profileName
@@ -94,7 +94,6 @@ resource endpoint 'Microsoft.Cdn/profiles/afdEndpoints@2021-06-01' = {
   }
 }
 
-/*
 resource customDomain 'Microsoft.Cdn/profiles/customDomains@2021-06-01' = {
   name: customDomainResourceName
   parent: profile
@@ -106,7 +105,6 @@ resource customDomain 'Microsoft.Cdn/profiles/customDomains@2021-06-01' = {
     }
   }
 }
-*/
 
 resource originGroup 'Microsoft.Cdn/profiles/originGroups@2021-06-01' = {
   name: originGroupName
@@ -146,13 +144,11 @@ resource route 'Microsoft.Cdn/profiles/afdEndpoints/routes@2021-06-01' = {
     origin // This explicit dependency is required to ensure that the origin group is not empty when the route is created.
   ]
   properties: {
-    /*
     customDomains: [
       {
         id: customDomain.id
       }
     ]
-    */
     ruleSets: [
       {
         id: profiles_MyFrontDoor_name_AFDRules.id

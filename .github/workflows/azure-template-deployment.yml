@@ -46,7 +46,8 @@ jobs:
             --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \
             --template-file ./templates/azure-resources.bicep \
             --parameters storageAccountName=${{ steps.create-globally-unique-string-for-resource-group.outputs.storageAccountName }} \
-                          frontDoorEndpointName=${{ steps.create-globally-unique-string-for-resource-group.outputs.frontDoorEndpointName }}
+                          frontDoorEndpointName=${{ steps.create-globally-unique-string-for-resource-group.outputs.frontDoorEndpointName }} \
+                          customDomainName=testsite.ceclauson.com
 
       - name: Configure Static Website Hosting
         shell: pwsh
