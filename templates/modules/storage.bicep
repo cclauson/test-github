@@ -13,6 +13,9 @@ param accountName string
 ])
 param skuName string
 
+@description('The custom domain name to associate with your Front Door endpoint.')
+param customDomainName string
+
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' = {
   name: accountName
   location: location
@@ -27,6 +30,9 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' = {
     supportsHttpsTrafficOnly: true
     networkAcls: {
       defaultAction: 'Allow'
+    }
+    customDomain: {
+      name: customDomainName
     }
   }
 
