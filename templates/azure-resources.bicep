@@ -41,7 +41,7 @@ module frontDoor 'modules/front-door.bicep' = {
     skuName: frontDoorSkuName
     endpointName: frontDoorEndpointName
     originHostName: storage.outputs.webEndpointHostName
-    originPath: '/${storageBlobContainerName}'
+    originPath: '/'
     // customDomainName: customDomainName
     // privateEndpointResourceId: storage.outputs.storageResourceId
     // privateLinkResourceType: 'blob' // For blobs on Azure Storage, this needs to be 'blob'.
