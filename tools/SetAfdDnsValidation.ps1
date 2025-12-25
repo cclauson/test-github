@@ -43,48 +43,79 @@ if ($validationState -eq "Approved") {
     exit 0
 }
 
-# Regenerate validation token to ensure we have a fresh token
-Write-Host "Regenerating validation token to ensure fresh token..."
-az afd custom-domain regenerate-validation-token `
+# Get the current validation token first (in case regeneration fails due to rate limit)
+Write-Host "Retrieving current validation token..."
+$tokenJson = az afd custom-domain show `
     --resource-group $ResourceGroup `
     --profile-name $FrontDoorProfileName `
-    --custom-domain-name $CustomDomainName
+    --custom-domain-name $CustomDomainName `
+    --query "{validationToken:validationProperties.validationToken}" `
+    -o json
 
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "Failed to regenerate validation token."
-    exit 1
-}
-
-# Wait for the new token to be available
-Write-Host "Waiting for new validation token..."
-$maxAttempts = 12
-$attempt = 0
-$validationToken = $null
-
-while ($attempt -lt $maxAttempts -and -not $validationToken) {
-    Start-Sleep -Seconds 10
-    $attempt++
-    Write-Host "  Attempt $attempt of $maxAttempts..."
-
-    $tokenJson = az afd custom-domain show `
-        --resource-group $ResourceGroup `
-        --profile-name $FrontDoorProfileName `
-        --custom-domain-name $CustomDomainName `
-        --query "{validationToken:validationProperties.validationToken}" `
-        -o json
-
-    if ($LASTEXITCODE -eq 0) {
-        $tokenResult = $tokenJson | ConvertFrom-Json
-        $validationToken = $tokenResult.validationToken
+$existingToken = $null
+if ($LASTEXITCODE -eq 0) {
+    $tokenResult = $tokenJson | ConvertFrom-Json
+    $existingToken = $tokenResult.validationToken
+    if ($existingToken) {
+        Write-Host "Current token: $existingToken"
     }
 }
 
+# Try to regenerate validation token for a fresh token
+Write-Host "Attempting to regenerate validation token..."
+$regenerateOutput = az afd custom-domain regenerate-validation-token `
+    --resource-group $ResourceGroup `
+    --profile-name $FrontDoorProfileName `
+    --custom-domain-name $CustomDomainName 2>&1
+
+$regenerationSucceeded = $LASTEXITCODE -eq 0
+
+if (-not $regenerationSucceeded) {
+    # Check if this is a rate limit error
+    if ($regenerateOutput -match "Rate limit exceeded") {
+        Write-Host "WARNING: Token regeneration rate limited. Using existing token if available."
+    } else {
+        Write-Host "WARNING: Token regeneration failed: $regenerateOutput"
+    }
+}
+
+# Get the validation token (either new or existing)
+$validationToken = $null
+
+if ($regenerationSucceeded) {
+    # Wait for the new token to be available after regeneration
+    Write-Host "Waiting for new validation token..."
+    $maxAttempts = 12
+    $attempt = 0
+
+    while ($attempt -lt $maxAttempts -and -not $validationToken) {
+        Start-Sleep -Seconds 10
+        $attempt++
+        Write-Host "  Attempt $attempt of $maxAttempts..."
+
+        $tokenJson = az afd custom-domain show `
+            --resource-group $ResourceGroup `
+            --profile-name $FrontDoorProfileName `
+            --custom-domain-name $CustomDomainName `
+            --query "{validationToken:validationProperties.validationToken}" `
+            -o json
+
+        if ($LASTEXITCODE -eq 0) {
+            $tokenResult = $tokenJson | ConvertFrom-Json
+            $validationToken = $tokenResult.validationToken
+        }
+    }
+} else {
+    # Use existing token if regeneration failed
+    $validationToken = $existingToken
+}
+
 if (-not $validationToken) {
-    Write-Error "Could not retrieve new validation token after regeneration."
+    Write-Error "No validation token available. Cannot proceed with DNS validation."
     exit 1
 }
 
-Write-Host "New validation token: $validationToken"
+Write-Host "Using validation token: $validationToken"
 
 # Create the TXT record name (_dnsauth.subdomain)
 $txtRecordName = "_dnsauth.$Subdomain"
