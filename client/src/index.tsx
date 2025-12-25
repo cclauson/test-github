@@ -31,6 +31,6 @@ reportWebVitals((metric) => {
     average: metric.value,
   }, {
     metricId: metric.id,
-    metricRating: metric.rating,
+    delta: metric.delta.toString(),
   });
 });
