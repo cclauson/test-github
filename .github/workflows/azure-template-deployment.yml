@@ -53,3 +53,17 @@ jobs:
         shell: pwsh
         run: |
           ./tools/EnableStaticWebHosting.ps1 -IndexDocument index.html -ErrorDocument404Path 404.html -storageAccountName ${{ steps.create-globally-unique-string-for-resource-group.outputs.storageAccountName }}
+
+      - name: Configure AFD Custom Domain DNS Validation
+        shell: pwsh
+        run: |
+          $customDomain = "${{ vars.CUSTOM_DOMAIN_NAME }}"
+          $afdCustomDomainName = $customDomain -replace '\.', '-'
+          $subdomain = $customDomain.Split('.')[0]
+          ./tools/SetAfdDnsValidation.ps1 `
+            -ResourceGroup ${{ vars.AZURE_RESOURCE_GROUP }} `
+            -FrontDoorProfileName MyFrontDoor `
+            -CustomDomainName $afdCustomDomainName `
+            -DnsZoneName ${{ vars.DNS_ZONE_NAME }} `
+            -DnsZoneResourceGroup ${{ vars.DNS_ZONE_RESOURCE_GROUP }} `
+            -Subdomain $subdomain
