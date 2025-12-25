@@ -38,3 +38,7 @@ jobs:
       - name: Upload files to Azure Blob Storage
         run: |
           az storage blob upload-batch --account-name ${{ steps.create-globally-unique-string-for-resource-group.outputs.storageAccountName }} --destination '$web' --source ./client/build --overwrite
+
+      - name: Purge CDN Cache
+        run: |
+          az afd endpoint purge --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} --profile-name MyFrontDoor --endpoint-name ${{ steps.create-globally-unique-string-for-resource-group.outputs.frontDoorEndpointName }} --content-paths "/*"
