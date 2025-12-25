@@ -18,14 +18,14 @@ param (
     [string]$Subdomain
 )
 
-# Get the AFD custom domain validation token using Azure CLI
-Write-Host "Retrieving validation token from Azure Front Door custom domain..."
+# Check current validation state
+Write-Host "Checking current validation state..."
 
 $customDomainJson = az afd custom-domain show `
     --resource-group $ResourceGroup `
     --profile-name $FrontDoorProfileName `
     --custom-domain-name $CustomDomainName `
-    --query "{validationState:domainValidationState, validationToken:validationProperties.validationToken}" `
+    --query "{validationState:domainValidationState}" `
     -o json
 
 if ($LASTEXITCODE -ne 0) {
@@ -34,7 +34,6 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 $customDomain = $customDomainJson | ConvertFrom-Json
-$validationToken = $customDomain.validationToken
 $validationState = $customDomain.validationState
 
 Write-Host "Current validation state: $validationState"
@@ -44,12 +43,48 @@ if ($validationState -eq "Approved") {
     exit 0
 }
 
-if (-not $validationToken) {
-    Write-Error "Could not retrieve validation token from custom domain."
+# Regenerate validation token to ensure we have a fresh token
+Write-Host "Regenerating validation token to ensure fresh token..."
+az afd custom-domain regenerate-validation-token `
+    --resource-group $ResourceGroup `
+    --profile-name $FrontDoorProfileName `
+    --custom-domain-name $CustomDomainName
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Failed to regenerate validation token."
     exit 1
 }
 
-Write-Host "Validation token: $validationToken"
+# Wait for the new token to be available
+Write-Host "Waiting for new validation token..."
+$maxAttempts = 12
+$attempt = 0
+$validationToken = $null
+
+while ($attempt -lt $maxAttempts -and -not $validationToken) {
+    Start-Sleep -Seconds 10
+    $attempt++
+    Write-Host "  Attempt $attempt of $maxAttempts..."
+
+    $tokenJson = az afd custom-domain show `
+        --resource-group $ResourceGroup `
+        --profile-name $FrontDoorProfileName `
+        --custom-domain-name $CustomDomainName `
+        --query "{validationToken:validationProperties.validationToken}" `
+        -o json
+
+    if ($LASTEXITCODE -eq 0) {
+        $tokenResult = $tokenJson | ConvertFrom-Json
+        $validationToken = $tokenResult.validationToken
+    }
+}
+
+if (-not $validationToken) {
+    Write-Error "Could not retrieve new validation token after regeneration."
+    exit 1
+}
+
+Write-Host "New validation token: $validationToken"
 
 # Create the TXT record name (_dnsauth.subdomain)
 $txtRecordName = "_dnsauth.$Subdomain"
@@ -64,8 +99,7 @@ $existingRecord = az network dns record-set txt show `
     2>$null
 
 if ($existingRecord) {
-    Write-Host "TXT record already exists. Updating..."
-    # Delete existing record set and recreate
+    Write-Host "TXT record already exists. Deleting old record..."
     az network dns record-set txt delete `
         --resource-group $DnsZoneResourceGroup `
         --zone-name $DnsZoneName `
@@ -73,7 +107,7 @@ if ($existingRecord) {
         --yes
 }
 
-Write-Host "Creating TXT record..."
+Write-Host "Creating TXT record with new token..."
 az network dns record-set txt add-record `
     --resource-group $DnsZoneResourceGroup `
     --zone-name $DnsZoneName `
