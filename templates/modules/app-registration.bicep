@@ -1,4 +1,5 @@
 // Enable the Microsoft Graph Bicep extension
+targetScope = 'tenant'
 extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.9-preview'
 
 @description('The display name for the SPA application')
