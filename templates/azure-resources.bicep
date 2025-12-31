@@ -19,6 +19,12 @@ param frontDoorEndpointName string // = 'afd-${uniqueString(resourceGroup().id)}
 @description('The custom domain name to associate with your Front Door endpoint.')
 param customDomainName string
 
+@description('The name of the Log Analytics Workspace.')
+param logAnalyticsWorkspaceName string = 'myLogAnalyticsWorkspace'
+
+@description('The name of the Application Insights instance.')
+param applicationInsightsName string = 'my-application-insights'
+
 var frontDoorSkuName = 'Standard_AzureFrontDoor'
 
 module storage 'modules/storage.bicep' = {
@@ -32,7 +38,11 @@ module storage 'modules/storage.bicep' = {
 
 module dataPipeline 'modules/data-pipeline.bicep' = {
   name: 'data-pipeline'
-  params: {}
+  params: {
+    location: location
+    logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
+    applicationInsightsName: applicationInsightsName
+  }
 }
 
 module frontDoor 'modules/front-door.bicep' = {

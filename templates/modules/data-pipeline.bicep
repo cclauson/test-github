@@ -1,6 +1,15 @@
+@description('The location for the resources.')
+param location string = resourceGroup().location
+
+@description('The name of the Log Analytics Workspace.')
+param logAnalyticsWorkspaceName string
+
+@description('The name of the Application Insights instance.')
+param applicationInsightsName string
+
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
-  name: 'myLogAnalyticsWorkspace' // Name of your Log Analytics Workspace
-  location: resourceGroup().location // Or a specific Azure region like 'East US'
+  name: logAnalyticsWorkspaceName
+  location: location
   properties: {
     sku: {
       name: 'PerGB2018' // Or 'Free', 'Standard', 'Premium', 'CapacityReservation'
@@ -11,8 +20,8 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10
 }
 
 resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
-  name: 'my-application-insights'
-  location: 'westus'
+  name: applicationInsightsName
+  location: location
   kind: 'web'
   properties: {
     Application_Type: 'web'
