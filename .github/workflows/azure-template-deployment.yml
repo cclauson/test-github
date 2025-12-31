@@ -121,6 +121,62 @@ jobs:
           echo "applicationId=$appId" >> $GITHUB_OUTPUT
           echo "SPA Application ID: $appId"
 
+      - name: Configure User Flow
+        shell: bash
+        run: |
+          APP_ID="${{ steps.deploy-app-registration.outputs.applicationId }}"
+          FLOW_NAME="${{ vars.SPA_APP_DISPLAY_NAME }} User Flow"
+
+          echo "Checking for existing user flow..."
+          # Check if user flow already exists for this app
+          existingFlow=$(az rest --method GET \
+            --uri "https://graph.microsoft.com/v1.0/identity/authenticationEventsFlows" \
+            --headers "Content-Type=application/json" \
+            --query "value[?displayName=='$FLOW_NAME'].id" -o tsv 2>/dev/null || echo "")
+
+          if [ -n "$existingFlow" ]; then
+            echo "User flow already exists: $existingFlow"
+          else
+            echo "Creating user flow..."
+            # Create user flow with email/password sign-up linked to the SPA app
+            az rest --method POST \
+              --uri "https://graph.microsoft.com/v1.0/identity/authenticationEventsFlows" \
+              --headers "Content-Type=application/json" \
+              --body "{
+                \"@odata.type\": \"#microsoft.graph.externalUsersSelfServiceSignUpEventsFlow\",
+                \"displayName\": \"$FLOW_NAME\",
+                \"conditions\": {
+                  \"applications\": {
+                    \"includeApplications\": [{\"appId\": \"$APP_ID\"}]
+                  }
+                },
+                \"onAuthenticationMethodLoadStart\": {
+                  \"@odata.type\": \"#microsoft.graph.onAuthenticationMethodLoadStartExternalUsersSelfServiceSignUp\",
+                  \"identityProviders\": [{\"id\": \"EmailPassword-OAUTH\"}]
+                },
+                \"onInteractiveAuthFlowStart\": {
+                  \"@odata.type\": \"#microsoft.graph.onInteractiveAuthFlowStartExternalUsersSelfServiceSignUp\",
+                  \"isSignUpAllowed\": true
+                },
+                \"onAttributeCollection\": {
+                  \"@odata.type\": \"#microsoft.graph.onAttributeCollectionExternalUsersSelfServiceSignUp\",
+                  \"attributes\": [
+                    {\"id\": \"email\", \"displayName\": \"Email Address\", \"userFlowAttributeType\": \"builtIn\", \"dataType\": \"string\"},
+                    {\"id\": \"displayName\", \"displayName\": \"Display Name\", \"userFlowAttributeType\": \"builtIn\", \"dataType\": \"string\"}
+                  ],
+                  \"attributeCollectionPage\": {
+                    \"views\": [{
+                      \"inputs\": [
+                        {\"attribute\": \"email\", \"label\": \"Email Address\", \"inputType\": \"text\", \"hidden\": true, \"editable\": false, \"writeToDirectory\": true, \"required\": true},
+                        {\"attribute\": \"displayName\", \"label\": \"Display Name\", \"inputType\": \"text\", \"hidden\": false, \"editable\": true, \"writeToDirectory\": true, \"required\": true}
+                      ]
+                    }]
+                  }
+                }
+              }"
+            echo "User flow created successfully"
+          fi
+
       - name: Re-login to Azure Subscription
         uses: ./.github/actions/azure-login
         with:

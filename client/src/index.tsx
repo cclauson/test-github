@@ -19,6 +19,9 @@ const root = ReactDOM.createRoot(
 async function initializeApp() {
   if (isAuthConfigured()) {
     try {
+      // Initialize MSAL before any other calls
+      await msalInstance.initialize();
+
       // Handle redirect response (if returning from login)
       const response = await msalInstance.handleRedirectPromise();
 

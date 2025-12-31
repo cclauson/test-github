@@ -94,8 +94,8 @@ if (-not $SkipAuth) {
         $ErrorActionPreference = "Stop"
 
         if ($loginExitCode -eq 0) {
-            # Query for SPA app registration (use naming convention from workflow)
-            $app = az ad app list --query "[0]" 2>$null | ConvertFrom-Json
+            # Query for SPA app registration (find app with SPA redirect URIs configured)
+            $app = az ad app list --query "[?spa.redirectUris && length(spa.redirectUris) > ``0``] | [0]" 2>$null | ConvertFrom-Json
 
             if ($app) {
                 $config.auth = @{

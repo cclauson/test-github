@@ -258,25 +258,30 @@ if (-not $existingSp) {
     }
 }
 
-# Step 6: Add Application.ReadWrite.All permission (Microsoft Graph)
+# Step 6: Add Microsoft Graph permissions
 Write-Host ""
 Write-Host "Step 6: Configuring API permissions..." -ForegroundColor Yellow
 
 # Microsoft Graph App ID (constant)
 $graphAppId = "00000003-0000-0000-c000-000000000000"
-# Application.ReadWrite.All permission ID
-$appReadWriteAllId = "1bfefb4e-e0b5-418b-a88f-73c46d2cc8e9"
 
-# Add the permission (suppress warnings)
+# Permission IDs (Application permissions / Role)
+$permissions = @{
+    "Application.ReadWrite.All" = "1bfefb4e-e0b5-418b-a88f-73c46d2cc8e9"
+    "EventListener.ReadWrite.All" = "0edf5e9e-4ce8-468a-8432-d08631d18c43"
+}
+
+# Add each permission (suppress warnings)
 $ErrorActionPreference = "SilentlyContinue"
-az ad app permission add `
-    --id $appId `
-    --api $graphAppId `
-    --api-permissions "$appReadWriteAllId=Role" `
-    2>$null
+foreach ($perm in $permissions.GetEnumerator()) {
+    az ad app permission add `
+        --id $appId `
+        --api $graphAppId `
+        --api-permissions "$($perm.Value)=Role" `
+        2>$null
+    Write-Host "  Added $($perm.Key) permission"
+}
 $ErrorActionPreference = "Stop"
-
-Write-Host "  Added Application.ReadWrite.All permission"
 
 # Grant admin consent
 Write-Host "  Granting admin consent..."
