@@ -593,6 +593,9 @@ module.exports = function (webpackEnv) {
       ),
       new webpack.DefinePlugin({
         'APP_INSIGHTS_CONNECTION_STRING': JSON.stringify(injectedConfig.appInsightsConnectionString),
+        'AUTH_CLIENT_ID': JSON.stringify(injectedConfig.auth?.clientId || ''),
+        'AUTH_TENANT_ID': JSON.stringify(injectedConfig.auth?.tenantId || ''),
+        'AUTH_AUTHORITY': JSON.stringify(injectedConfig.auth?.authority || ''),
       }),
       // Inlines the webpack runtime script. This script is too small to warrant
       // a network request.

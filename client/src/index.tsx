@@ -1,16 +1,35 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { PublicClientApplication } from '@azure/msal-browser';
+import { MsalProvider } from '@azure/msal-react';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { ApplicationInsights } from '@microsoft/applicationinsights-web'
+import { ApplicationInsights } from '@microsoft/applicationinsights-web';
+import { msalConfig, isAuthConfigured } from './authConfig';
+
+// Initialize MSAL instance (only if auth is configured)
+const msalInstance = new PublicClientApplication(msalConfig);
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
+
+// Wrap app with MsalProvider if auth is configured
+const AppWithAuth = () => {
+  if (isAuthConfigured()) {
+    return (
+      <MsalProvider instance={msalInstance}>
+        <App />
+      </MsalProvider>
+    );
+  }
+  return <App />;
+};
+
 root.render(
   <React.StrictMode>
-    <App />
+    <AppWithAuth />
   </React.StrictMode>
 );
 
