@@ -88,36 +88,35 @@ jobs:
           APP_NAME="${{ vars.SPA_APP_DISPLAY_NAME }}"
           CUSTOM_DOMAIN="${{ vars.CUSTOM_DOMAIN_NAME }}"
 
-          # Define redirect URIs
-          REDIRECT_URIS="https://${CUSTOM_DOMAIN} https://${CUSTOM_DOMAIN}/auth/callback http://localhost:3000 http://localhost:3000/auth/callback"
-
           # Check if app already exists
           existingApp=$(az ad app list --display-name "$APP_NAME" --query "[0].appId" -o tsv 2>/dev/null || echo "")
 
           if [ -n "$existingApp" ] && [ "$existingApp" != "null" ]; then
             echo "App registration already exists: $existingApp"
             appId=$existingApp
-
-            # Update redirect URIs
-            az ad app update --id $appId --spa-redirect-uris $REDIRECT_URIS
+            appObjectId=$(az ad app show --id $appId --query "id" -o tsv)
           else
             echo "Creating new app registration..."
             # Create app registration with SPA configuration
-            result=$(az ad app create \
+            appResult=$(az ad app create \
               --display-name "$APP_NAME" \
               --sign-in-audience AzureADandPersonalMicrosoftAccount \
               --enable-id-token-issuance true \
-              --enable-access-token-issuance true \
-              --query "appId" -o tsv)
-            appId=$result
+              --enable-access-token-issuance true)
+            appId=$(echo "$appResult" | jq -r '.appId')
+            appObjectId=$(echo "$appResult" | jq -r '.id')
             echo "Created app registration: $appId"
-
-            # Configure SPA redirect URIs
-            az ad app update --id $appId --spa-redirect-uris $REDIRECT_URIS
 
             # Create service principal
             az ad sp create --id $appId || true
           fi
+
+          # Update SPA redirect URIs using Graph API
+          echo "Configuring SPA redirect URIs..."
+          az rest --method PATCH \
+            --uri "https://graph.microsoft.com/v1.0/applications/$appObjectId" \
+            --headers "Content-Type=application/json" \
+            --body "{\"spa\":{\"redirectUris\":[\"https://${CUSTOM_DOMAIN}\",\"https://${CUSTOM_DOMAIN}/auth/callback\",\"http://localhost:3000\",\"http://localhost:3000/auth/callback\"]}}"
 
           echo "applicationId=$appId" >> $GITHUB_OUTPUT
           echo "SPA Application ID: $appId"
