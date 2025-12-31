@@ -19,15 +19,61 @@ jobs:
           azure-deploy-tenant-id: ${{ secrets.AZURE_DEPLOY_TENANT_ID }}
 
       - name: Create Globally Unique Names For Resource Group
-        id: create-globally-unique-string-for-resource-group  
+        id: create-globally-unique-string-for-resource-group
         uses: ./.github/actions/create-unique-names
         with:
           resourceGroupName: ${{ vars.AZURE_RESOURCE_GROUP }}
 
-      - name: Initialize Client Application Config From Azure
+      - name: Get App Insights Config
+        id: get-app-insights
         shell: pwsh
         run: |
-          ./client/init.ps1 -ResourceGroup ${{ vars.AZURE_RESOURCE_GROUP }}
+          $aiConnectionString = az resource show -g ${{ vars.AZURE_RESOURCE_GROUP }} -n my-application-insights --resource-type "microsoft.insights/components" --query properties.ConnectionString -o tsv
+          echo "connectionString=$aiConnectionString" >> $env:GITHUB_OUTPUT
+
+      - name: Login to External ID Tenant
+        shell: bash
+        run: |
+          az login --service-principal \
+            --username ${{ secrets.EXTERNAL_ID_CLIENT_ID }} \
+            --password ${{ secrets.EXTERNAL_ID_CLIENT_SECRET }} \
+            --tenant ${{ secrets.EXTERNAL_ID_TENANT_ID }} \
+            --allow-no-subscriptions
+
+      - name: Get Auth Config from External ID
+        id: get-auth-config
+        shell: pwsh
+        run: |
+          $app = az ad app list --filter "displayName eq '${{ vars.SPA_APP_DISPLAY_NAME }}'" --query "[0]" | ConvertFrom-Json
+          if ($app) {
+            echo "clientId=$($app.appId)" >> $env:GITHUB_OUTPUT
+            echo "Found SPA app: $($app.appId)"
+          } else {
+            Write-Error "SPA app registration not found in External ID tenant"
+            exit 1
+          }
+
+      - name: Re-login to Azure Subscription
+        uses: ./.github/actions/azure-login
+        with:
+          azure-deploy-client-id: ${{ secrets.AZURE_DEPLOY_CLIENT_ID }}
+          azure-deploy-client-secret: ${{ secrets.AZURE_DEPLOY_CLIENT_SECRET }}
+          azure-deploy-subscription-id: ${{ secrets.AZURE_DEPLOY_SUBSCRIPTION_ID }}
+          azure-deploy-tenant-id: ${{ secrets.AZURE_DEPLOY_TENANT_ID }}
+
+      - name: Initialize Client Application Config
+        shell: pwsh
+        run: |
+          $config = @{
+            appInsightsConnectionString = "${{ steps.get-app-insights.outputs.connectionString }}"
+            auth = @{
+              clientId = "${{ steps.get-auth-config.outputs.clientId }}"
+              tenantId = "${{ secrets.EXTERNAL_ID_TENANT_ID }}"
+              authority = "https://${{ secrets.EXTERNAL_ID_TENANT_ID }}.ciamlogin.com"
+            }
+          }
+          $configPath = Join-Path $PSScriptRoot "../../client/injected_client_config.json"
+          $config | ConvertTo-Json -Depth 10 | Set-Content -Path "./client/injected_client_config.json" -Encoding utf8NoBOM
 
       - name: Build Client Application
         run: |

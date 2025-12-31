@@ -7,6 +7,7 @@ A React single-page application (SPA) deployed to Azure using Infrastructure as 
 - **Frontend**: React 19 + TypeScript + TailwindCSS
 - **Hosting**: Azure Blob Storage (static website)
 - **CDN**: Azure Front Door with custom domain and WAF
+- **Authentication**: Microsoft Entra External ID (CIAM)
 - **Monitoring**: Application Insights
 - **IaC**: Bicep templates
 - **CI/CD**: GitHub Actions
@@ -103,15 +104,20 @@ Builds and deploys the React app:
 | `CUSTOM_DOMAIN_NAME` | Custom domain for the site | `testsite.ceclauson.com` |
 | `DNS_ZONE_NAME` | Azure DNS zone name | `ceclauson.com` |
 | `DNS_ZONE_RESOURCE_GROUP` | Resource group containing DNS zone | `defaultresourcegroup-cus` |
+| `SPA_APP_DISPLAY_NAME` | Display name for the SPA app registration | `My SPA App` |
+| `SPA_APP_UNIQUE_NAME` | Unique identifier for the SPA app | `my-spa-app` |
 
 ### GitHub Secrets
 
 | Secret | Description |
 |--------|-------------|
-| `AZURE_DEPLOY_CLIENT_ID` | Service principal client ID |
+| `AZURE_DEPLOY_CLIENT_ID` | Service principal client ID (Azure subscription) |
 | `AZURE_DEPLOY_CLIENT_SECRET` | Service principal client secret |
 | `AZURE_DEPLOY_SUBSCRIPTION_ID` | Azure subscription ID |
-| `AZURE_DEPLOY_TENANT_ID` | Azure AD tenant ID |
+| `AZURE_DEPLOY_TENANT_ID` | Azure AD tenant ID (workforce tenant) |
+| `EXTERNAL_ID_CLIENT_ID` | Service principal client ID (External ID tenant) |
+| `EXTERNAL_ID_CLIENT_SECRET` | Service principal client secret (External ID tenant) |
+| `EXTERNAL_ID_TENANT_ID` | External ID tenant ID |
 
 ### Setting Variables/Secrets
 
@@ -121,12 +127,19 @@ gh variable set AZURE_RESOURCE_GROUP --body "MyResourceGroup"
 gh variable set CUSTOM_DOMAIN_NAME --body "mysite.example.com"
 gh variable set DNS_ZONE_NAME --body "example.com"
 gh variable set DNS_ZONE_RESOURCE_GROUP --body "my-dns-rg"
+gh variable set SPA_APP_DISPLAY_NAME --body "My SPA Application"
+gh variable set SPA_APP_UNIQUE_NAME --body "my-spa-app"
 
-# Secrets (you'll be prompted for values)
+# Azure Subscription Secrets (you'll be prompted for values)
 gh secret set AZURE_DEPLOY_CLIENT_ID
 gh secret set AZURE_DEPLOY_CLIENT_SECRET
 gh secret set AZURE_DEPLOY_SUBSCRIPTION_ID
 gh secret set AZURE_DEPLOY_TENANT_ID
+
+# External ID Secrets (created by SetupExternalIdTenant.ps1)
+gh secret set EXTERNAL_ID_CLIENT_ID
+gh secret set EXTERNAL_ID_CLIENT_SECRET
+gh secret set EXTERNAL_ID_TENANT_ID
 ```
 
 ## Project Structure
@@ -150,11 +163,13 @@ test-github/
 │   └── modules/              # Bicep modules
 │       ├── storage.bicep     # Storage account
 │       ├── front-door.bicep  # Azure Front Door
-│       └── data-pipeline.bicep
+│       ├── data-pipeline.bicep  # App Insights + Log Analytics
+│       └── app-registration.bicep  # External ID app registration
 ├── tools/                    # Utility scripts
 │   ├── EnableStaticWebHosting.ps1
 │   ├── GetClientConfigForAzure.ps1
-│   └── SetAfdDnsValidation.ps1
+│   ├── SetAfdDnsValidation.ps1
+│   └── SetupExternalIdTenant.ps1  # External ID bootstrap script
 └── static/                   # Static HTML files
 ```
 
@@ -162,12 +177,31 @@ test-github/
 
 ### Initial Setup (First Time)
 
-1. Configure GitHub secrets and variables (see Configuration section)
+1. Configure Azure subscription secrets and variables (see Configuration section)
 
-2. Deploy Azure infrastructure:
+2. Set up External ID tenant for authentication:
+   ```powershell
+   # First, ensure you're logged into the correct Azure subscription
+   az login
+   az account set --subscription "<your-subscription-id>"
+
+   # Create the External ID tenant (uses current subscription)
+   ./tools/SetupExternalIdTenant.ps1 -ResourceGroup "<your-resource-group>"
+   ```
+   This creates the tenant and outputs the `EXTERNAL_ID_*` secrets to add to GitHub.
+
+3. Configure the External ID secrets in GitHub (values from step 2)
+
+4. Set the SPA app variables:
+   ```bash
+   gh variable set SPA_APP_DISPLAY_NAME --body "My SPA Application"
+   gh variable set SPA_APP_UNIQUE_NAME --body "my-spa-app"
+   ```
+
+5. Deploy Azure infrastructure:
    - Go to Actions → "Azure Template Deployment" → Run workflow
 
-3. Deploy the React app:
+6. Deploy the React app:
    - Go to Actions → "Azure Client App Deployment" → Run workflow
 
 ### Custom Domain Setup

@@ -67,3 +67,41 @@ jobs:
             -DnsZoneName ${{ vars.DNS_ZONE_NAME }} `
             -DnsZoneResourceGroup ${{ vars.DNS_ZONE_RESOURCE_GROUP }} `
             -Subdomain $subdomain
+
+      # Deploy App Registration to External ID Tenant
+      - name: Login to External ID Tenant
+        shell: bash
+        run: |
+          az login --service-principal \
+            --username ${{ secrets.EXTERNAL_ID_CLIENT_ID }} \
+            --password ${{ secrets.EXTERNAL_ID_CLIENT_SECRET }} \
+            --tenant ${{ secrets.EXTERNAL_ID_TENANT_ID }} \
+            --allow-no-subscriptions
+
+      - name: Deploy App Registration
+        id: deploy-app-registration
+        shell: bash
+        run: |
+          # Deploy app registration to External ID tenant
+          # Note: This uses tenant-level deployment since External ID has no subscription
+          result=$(az deployment tenant create \
+            --name appRegistrationDeployment \
+            --location centralus \
+            --template-file ./templates/modules/app-registration.bicep \
+            --parameters appDisplayName="${{ vars.SPA_APP_DISPLAY_NAME }}" \
+                         appUniqueName="${{ vars.SPA_APP_UNIQUE_NAME }}" \
+                         customDomain="${{ vars.CUSTOM_DOMAIN_NAME }}" \
+            --query "properties.outputs" -o json)
+
+          # Extract the application ID for use in client app
+          appId=$(echo $result | jq -r '.applicationId.value')
+          echo "applicationId=$appId" >> $GITHUB_OUTPUT
+          echo "SPA Application ID: $appId"
+
+      - name: Re-login to Azure Subscription
+        uses: ./.github/actions/azure-login
+        with:
+          azure-deploy-client-id: ${{ secrets.AZURE_DEPLOY_CLIENT_ID }}
+          azure-deploy-client-secret: ${{ secrets.AZURE_DEPLOY_CLIENT_SECRET }}
+          azure-deploy-subscription-id: ${{ secrets.AZURE_DEPLOY_SUBSCRIPTION_ID }}
+          azure-deploy-tenant-id: ${{ secrets.AZURE_DEPLOY_TENANT_ID }}
