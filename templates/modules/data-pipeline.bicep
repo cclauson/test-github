@@ -1,5 +1,5 @@
-@description('The location for the resources. Defaults to westus for Application Insights compatibility.')
-param location string = 'westus'
+@description('The location for the resources.')
+param location string = resourceGroup().location
 
 @description('The name of the Log Analytics Workspace.')
 param logAnalyticsWorkspaceName string

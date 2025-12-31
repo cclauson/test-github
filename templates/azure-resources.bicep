@@ -39,7 +39,7 @@ module storage 'modules/storage.bicep' = {
 module dataPipeline 'modules/data-pipeline.bicep' = {
   name: 'data-pipeline'
   params: {
-    // Note: location defaults to 'westus' for App Insights compatibility
+    location: location
     logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
     applicationInsightsName: applicationInsightsName
   }
