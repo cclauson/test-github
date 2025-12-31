@@ -32,12 +32,31 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+# Check current Azure context
+$currentAccount = az account show 2>$null | ConvertFrom-Json
+if (-not $currentAccount) {
+    Write-Error "Not logged into Azure. Run 'az login' first."
+    exit 1
+}
+
+# Check if we're in a subscription (not a no-subscription tenant like External ID)
+if (-not $currentAccount.id -or $currentAccount.id -eq $currentAccount.tenantId) {
+    Write-Host "Currently logged into tenant without subscription access." -ForegroundColor Yellow
+    Write-Host "Logging into Azure with subscription access..." -ForegroundColor Cyan
+    $ErrorActionPreference = "SilentlyContinue"
+    az login 2>&1 | Out-Null
+    $ErrorActionPreference = "Stop"
+    $currentAccount = az account show 2>$null | ConvertFrom-Json
+}
+
+Write-Host "Using subscription: $($currentAccount.name)" -ForegroundColor Cyan
+
 # Get App Insights connection string (requires Azure subscription login)
 Write-Host "Fetching Application Insights configuration..." -ForegroundColor Cyan
 $aiConnectionString = az resource show -g $ResourceGroup -n my-application-insights --resource-type "microsoft.insights/components" --query properties.ConnectionString -o tsv
 
 if (-not $aiConnectionString) {
-    Write-Error "Failed to get Application Insights connection string. Make sure you're logged into Azure."
+    Write-Error "Failed to get Application Insights connection string. Make sure the resource group '$ResourceGroup' exists and contains Application Insights."
     exit 1
 }
 
@@ -69,9 +88,12 @@ if (-not $SkipAuth) {
 
         # Login to External ID tenant to query app registrations
         Write-Host "  Logging into External ID tenant..." -ForegroundColor Cyan
+        $ErrorActionPreference = "SilentlyContinue"
         az login --tenant $tenantId --allow-no-subscriptions 2>&1 | Out-Null
+        $loginExitCode = $LASTEXITCODE
+        $ErrorActionPreference = "Stop"
 
-        if ($LASTEXITCODE -eq 0) {
+        if ($loginExitCode -eq 0) {
             # Query for SPA app registration (use naming convention from workflow)
             $app = az ad app list --query "[0]" 2>$null | ConvertFrom-Json
 
